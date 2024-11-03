@@ -1,7 +1,14 @@
 import React from 'react';
 import logo from './logo.svg';
 import './App.css';
-import { Box, FormLabel, Input, InputLabel, Stack } from '@mui/material';
+import {
+  Box,
+  FormLabel,
+  Input,
+  InputLabel,
+  Stack,
+  Typography,
+} from '@mui/material';
 import { BattleGrid } from './components/BattleGrid';
 
 function App() {
@@ -10,8 +17,14 @@ function App() {
       alignContent={'center'}
       height={'100%'}
     >
-      <Stack alignContent={'center'}>
-        <label>Welcome to the arena!</label>
+      <Typography
+        variant='h1'
+        padding='10px'
+        align='center'
+      >
+        Welcome to the arena!
+      </Typography>
+      <Stack alignContent={'space-between'}>
         <BattleGrid gridSize={10} />
       </Stack>
     </Box>

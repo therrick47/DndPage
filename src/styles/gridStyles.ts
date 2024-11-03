@@ -9,6 +9,6 @@ export const GridTextItem = styled(Paper)(({ theme }) => ({
   height: '40px',
   color: theme.palette.text.secondary,
   ...theme.applyStyles('dark', {
-    backgroundColor: '#e6e6e6',
+    backgroundColor: ' #e6e6e6',
   }),
 }));
