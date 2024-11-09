@@ -28,23 +28,21 @@ export const BattleGrid = (props: gridProps) => {
       return <CharIcon source={GoblinIcon} />;
     }
   };
+  const ValidDistance = (playerCoordinate: number, newCoordinate: number) => {
+    return (
+      (playerCoordinate - newCoordinate >= 0 &&
+        (playerCoordinate - newCoordinate) * 5 <= playerMoveSpeed) ||
+      (newCoordinate - playerCoordinate >= 0 &&
+        (newCoordinate - playerCoordinate) * 5 <= playerMoveSpeed)
+    );
+  };
   const MoveRowIfAble = (row: number) => {
-    if (playerRow - row >= 0 && (playerRow - row) * 5 <= playerMoveSpeed) {
-      setPlayerRow(row);
-    } else if (
-      row - playerRow >= 0 &&
-      (row - playerRow) * 5 <= playerMoveSpeed
-    ) {
+    if (ValidDistance(playerRow, row)) {
       setPlayerRow(row);
     }
   };
   const MoveColumnIfAble = (col: number) => {
-    if (playerCol - col >= 0 && (playerCol - col) * 5 <= playerMoveSpeed) {
-      setPlayerCol(col);
-    } else if (
-      col - playerCol >= 0 &&
-      (col - playerCol) * 5 <= playerMoveSpeed
-    ) {
+    if (ValidDistance(playerCol, col)) {
       setPlayerCol(col);
     }
   };
@@ -69,6 +67,41 @@ export const BattleGrid = (props: gridProps) => {
     if (rowDiff === colDiff && rowDiff <= GetPlayerDiagonalSpeed()) {
       setPlayerCol(column);
       setPlayerRow(row);
+      return;
+    }
+    var tempRow = playerRow;
+    var tempCol = playerCol;
+    var distanceMoved = 0;
+    if (rowDiff > 0 && colDiff > 0) {
+      var smallDiff = rowDiff > colDiff ? colDiff : rowDiff;
+      if (smallDiff > 0 && smallDiff <= GetPlayerDiagonalSpeed()) {
+        tempRow += smallDiff;
+        tempCol += smallDiff;
+        rowDiff -= smallDiff;
+        console.log(`stuff ${rowDiff}`);
+        colDiff -= smallDiff;
+        var evenOddDiff = smallDiff % 2;
+        if (evenOddDiff > 0) {
+          distanceMoved = ((smallDiff - 1) / 2) * 15 + 5;
+        } else {
+          distanceMoved = (smallDiff / 2) * 15;
+        }
+      } else {
+        return;
+      }
+      console.log(
+        `distance moved: ${distanceMoved} rowdiff: ${rowDiff} colDiff: ${colDiff}`
+      );
+      if (rowDiff > 0 && rowDiff * 5 + distanceMoved <= playerMoveSpeed) {
+        console.log(`distance log: ${(rowDiff + distanceMoved) * 5}`);
+        setPlayerRow(row);
+        setPlayerCol(column);
+      }
+      if (colDiff > 0 && colDiff * 5 + distanceMoved <= playerMoveSpeed) {
+        console.log(`distance log: ${(colDiff + distanceMoved) * 5}`);
+        setPlayerRow(row);
+        setPlayerCol(column);
+      }
     }
   };
 
