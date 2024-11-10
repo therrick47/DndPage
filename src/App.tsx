@@ -18,11 +18,11 @@ function App() {
       height={'100%'}
     >
       <Typography
-        variant='h1'
+        variant='h2'
         padding='10px'
         align='center'
       >
-        Welcome to the arena!
+        WELCOME TO THE ARENA
       </Typography>
       <Stack alignContent={'space-between'}>
         <BattleGrid gridSize={10} />

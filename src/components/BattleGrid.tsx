@@ -5,9 +5,13 @@ import Box from '@mui/material/Box';
 import React, { useState } from 'react';
 import { GridTextItem } from '../styles/gridStyles';
 import { CharIcon } from './CharIcon';
-import { Stack } from '@mui/material';
+import { Button, Stack, Typography } from '@mui/material';
 import KnightIcon from '../images/KnightIcon.jpg';
 import GoblinIcon from '../images/GoblinIcon.png';
+import {
+  GetPlayerDiagonalSpeed,
+  ValidDistance,
+} from '../Functions/CalcFunctions';
 
 interface gridProps {
   gridSize: number;
@@ -28,94 +32,61 @@ export const BattleGrid = (props: gridProps) => {
       return <CharIcon source={GoblinIcon} />;
     }
   };
-  const ValidDistance = (playerCoordinate: number, newCoordinate: number) => {
-    return (
-      (playerCoordinate - newCoordinate >= 0 &&
-        (playerCoordinate - newCoordinate) * 5 <= playerMoveSpeed) ||
-      (newCoordinate - playerCoordinate >= 0 &&
-        (newCoordinate - playerCoordinate) * 5 <= playerMoveSpeed)
-    );
-  };
   const MoveRowIfAble = (row: number) => {
-    if (ValidDistance(playerRow, row)) {
+    if (ValidDistance(playerRow, row, playerMoveSpeed)) {
       setPlayerRow(row);
     }
   };
   const MoveColumnIfAble = (col: number) => {
-    if (ValidDistance(playerCol, col)) {
+    if (ValidDistance(playerCol, col, playerMoveSpeed)) {
       setPlayerCol(col);
     }
-  };
-  const GetPlayerDiagonalSpeed = () => {
-    var tileDistance = 0;
-    let hasDiagStepped = false;
-    let distance = 0;
-    while (distance < playerMoveSpeed) {
-      console.log(
-        `current move: ${playerMoveSpeed} increasing ${hasDiagStepped ? 10 : 5}`
-      );
-      if (distance + 5 === playerMoveSpeed && hasDiagStepped) break;
-      distance += hasDiagStepped ? 10 : 5;
-      hasDiagStepped = !hasDiagStepped;
-      tileDistance++;
-    }
-    return tileDistance;
   };
   const MoveMultiDirectionIfAble = (row: number, column: number) => {
     var colDiff = playerCol > column ? playerCol - column : column - playerCol;
     var rowDiff = playerRow > row ? playerRow - row : row - playerRow;
-    if (rowDiff === colDiff && rowDiff <= GetPlayerDiagonalSpeed()) {
-      setPlayerCol(column);
-      setPlayerRow(row);
+    if (rowDiff === colDiff) {
+      if (rowDiff <= GetPlayerDiagonalSpeed(playerMoveSpeed)) {
+        setPlayerCol(column);
+        setPlayerRow(row);
+      }
       return;
     }
-    var tempRow = playerRow;
-    var tempCol = playerCol;
     var distanceMoved = 0;
-    if (rowDiff > 0 && colDiff > 0) {
-      var smallDiff = rowDiff > colDiff ? colDiff : rowDiff;
-      if (smallDiff > 0 && smallDiff <= GetPlayerDiagonalSpeed()) {
-        tempRow += smallDiff;
-        tempCol += smallDiff;
-        rowDiff -= smallDiff;
-        console.log(`stuff ${rowDiff}`);
-        colDiff -= smallDiff;
-        var evenOddDiff = smallDiff % 2;
-        if (evenOddDiff > 0) {
-          distanceMoved = ((smallDiff - 1) / 2) * 15 + 5;
-        } else {
-          distanceMoved = (smallDiff / 2) * 15;
-        }
-      } else {
-        return;
-      }
-      console.log(
-        `distance moved: ${distanceMoved} rowdiff: ${rowDiff} colDiff: ${colDiff}`
-      );
-      if (rowDiff > 0 && rowDiff * 5 + distanceMoved <= playerMoveSpeed) {
-        console.log(`distance log: ${(rowDiff + distanceMoved) * 5}`);
-        setPlayerRow(row);
-        setPlayerCol(column);
-      }
-      if (colDiff > 0 && colDiff * 5 + distanceMoved <= playerMoveSpeed) {
-        console.log(`distance log: ${(colDiff + distanceMoved) * 5}`);
-        setPlayerRow(row);
-        setPlayerCol(column);
-      }
+    // if (rowDiff > 0 && colDiff > 0) {
+    var smallDiff = rowDiff > colDiff ? colDiff : rowDiff;
+    if (smallDiff > 0 && smallDiff <= GetPlayerDiagonalSpeed(playerMoveSpeed)) {
+      rowDiff -= smallDiff;
+      colDiff -= smallDiff;
+      var evenOddDiff = smallDiff % 2;
+      distanceMoved =
+        evenOddDiff > 0
+          ? ((smallDiff - 1) / 2) * 15 + 5
+          : (distanceMoved = (smallDiff / 2) * 15);
     }
+
+    if (
+      (rowDiff > 0 && rowDiff * 5 + distanceMoved <= playerMoveSpeed) ||
+      (colDiff > 0 && colDiff * 5 + distanceMoved <= playerMoveSpeed)
+    ) {
+      setPlayerRow(row);
+      setPlayerCol(column);
+    }
+    // }
   };
 
   const getRow = (props: gridProps, column: number) => {
     const calculateMove = (column: number, row: number) => {
       if (column === monsterCol && row === monsterRow) return;
 
+      MoveMultiDirectionIfAble(row, column);
       if (playerCol !== column && playerRow !== row) {
-        MoveMultiDirectionIfAble(row, column);
-      } else if (playerCol === column) {
-        MoveRowIfAble(row);
-      } else if (playerRow === row) {
-        MoveColumnIfAble(column);
       }
+      // else if (playerCol === column) {
+      //   MoveRowIfAble(row);
+      // } else if (playerRow === row) {
+      //   MoveColumnIfAble(column);
+      // }
     };
 
     return Array.from(Array(props.gridSize)).map((_, row) => (
@@ -150,8 +121,24 @@ export const BattleGrid = (props: gridProps) => {
       >
         {getBody(props)}
       </Grid>
+      <Stack
+        direction={'row'}
+        alignContent='space-between'
+      >
+        <Typography
+          padding='10px'
+          align='center'
+          fontSize='25px'
+        >
+          Player move speed remaining: {playerMoveSpeed}
+        </Typography>
+        <Button
+          variant='contained'
+          onClick={() => setPlayerMoveSpeed(30)}
+        >
+          Refresh
+        </Button>
+      </Stack>
     </Box>
   );
 };
-
-// export default BattleGrid;
