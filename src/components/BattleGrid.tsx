@@ -32,16 +32,14 @@ export const BattleGrid = (props: gridProps) => {
       return <CharIcon source={GoblinIcon} />;
     }
   };
-  const MoveRowIfAble = (row: number) => {
-    if (ValidDistance(playerRow, row, playerMoveSpeed)) {
-      setPlayerRow(row);
-    }
+
+  const getDiagonalDistance = (tileDiff: number) => {
+    var evenOddDiff = tileDiff % 2;
+    return evenOddDiff > 0
+      ? ((tileDiff - 1) / 2) * 15 + 5
+      : (tileDiff / 2) * 15;
   };
-  const MoveColumnIfAble = (col: number) => {
-    if (ValidDistance(playerCol, col, playerMoveSpeed)) {
-      setPlayerCol(col);
-    }
-  };
+
   const MoveMultiDirectionIfAble = (row: number, column: number) => {
     var colDiff = playerCol > column ? playerCol - column : column - playerCol;
     var rowDiff = playerRow > row ? playerRow - row : row - playerRow;
@@ -49,20 +47,17 @@ export const BattleGrid = (props: gridProps) => {
       if (rowDiff <= GetPlayerDiagonalSpeed(playerMoveSpeed)) {
         setPlayerCol(column);
         setPlayerRow(row);
+        var distance = getDiagonalDistance(rowDiff);
+        setPlayerMoveSpeed(playerMoveSpeed - distance);
       }
       return;
     }
     var distanceMoved = 0;
-    // if (rowDiff > 0 && colDiff > 0) {
     var smallDiff = rowDiff > colDiff ? colDiff : rowDiff;
     if (smallDiff > 0 && smallDiff <= GetPlayerDiagonalSpeed(playerMoveSpeed)) {
       rowDiff -= smallDiff;
       colDiff -= smallDiff;
-      var evenOddDiff = smallDiff % 2;
-      distanceMoved =
-        evenOddDiff > 0
-          ? ((smallDiff - 1) / 2) * 15 + 5
-          : (distanceMoved = (smallDiff / 2) * 15);
+      distanceMoved = getDiagonalDistance(smallDiff);
     }
 
     if (
@@ -72,7 +67,9 @@ export const BattleGrid = (props: gridProps) => {
       setPlayerRow(row);
       setPlayerCol(column);
     }
-    // }
+    setPlayerMoveSpeed(
+      playerMoveSpeed - distanceMoved - rowDiff * 5 - colDiff * 5
+    );
   };
 
   const getRow = (props: gridProps, column: number) => {
@@ -80,13 +77,6 @@ export const BattleGrid = (props: gridProps) => {
       if (column === monsterCol && row === monsterRow) return;
 
       MoveMultiDirectionIfAble(row, column);
-      if (playerCol !== column && playerRow !== row) {
-      }
-      // else if (playerCol === column) {
-      //   MoveRowIfAble(row);
-      // } else if (playerRow === row) {
-      //   MoveColumnIfAble(column);
-      // }
     };
 
     return Array.from(Array(props.gridSize)).map((_, row) => (
@@ -130,14 +120,16 @@ export const BattleGrid = (props: gridProps) => {
           align='center'
           fontSize='25px'
         >
-          Player move speed remaining: {playerMoveSpeed}
+          Player move speed remaining:
         </Typography>
-        <Button
-          variant='contained'
-          onClick={() => setPlayerMoveSpeed(30)}
+        <Typography
+          padding='10px'
+          align='center'
+          fontSize='25px'
         >
-          Refresh
-        </Button>
+          {playerMoveSpeed}
+        </Typography>
+        <Button onClick={() => setPlayerMoveSpeed(30)}>Refresh</Button>
       </Stack>
     </Box>
   );
