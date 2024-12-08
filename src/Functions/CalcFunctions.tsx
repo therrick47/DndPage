@@ -1,3 +1,6 @@
+import { transpileModule } from 'typescript';
+import { Weapon } from '../Classes/Weapon';
+
 export const ValidDistance = (
   playerCoordinate: number,
   newCoordinate: number,
@@ -24,4 +27,29 @@ export const GetPlayerDiagonalSpeed = (playerMoveSpeed: number) => {
     tileDistance++;
   }
   return tileDistance;
+};
+export const getDiagonalDistance = (tileDiff: number) => {
+  var evenOddDiff = tileDiff % 2;
+  return evenOddDiff > 0 ? ((tileDiff - 1) / 2) * 15 + 5 : (tileDiff / 2) * 15;
+};
+export const IsMonsterInRange = (
+  weapon: Weapon,
+  playerRow: number,
+  playerCol: number,
+  monsterRow: number,
+  monsterCol: number
+) => {
+  const validDistance = weapon.range / 5;
+  return (
+    playerCol === monsterCol + validDistance ||
+    playerCol === monsterCol - validDistance ||
+    playerRow === monsterRow + validDistance ||
+    playerRow === monsterRow - validDistance
+  );
+};
+export const getRandomIntInclusive = (min: number, max: number) => {
+  const minCeiled = Math.ceil(min);
+  const maxFloored = Math.floor(max);
+  // The maximum is inclusive and the minimum is inclusive
+  return Math.floor(Math.random() * (maxFloored - minCeiled + 1) + minCeiled);
 };

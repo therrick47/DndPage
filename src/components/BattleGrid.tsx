@@ -2,16 +2,21 @@ import { styled } from '@mui/material/styles';
 import Grid from '@mui/material/Grid2';
 import Paper from '@mui/material/Paper';
 import Box from '@mui/material/Box';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { GridTextItem } from '../styles/gridStyles';
 import { CharIcon } from './CharIcon';
-import { Button, Stack, Typography } from '@mui/material';
+import { Button, MenuItem, Select, Stack, Typography } from '@mui/material';
 import KnightIcon from '../images/KnightIcon.jpg';
 import GoblinIcon from '../images/GoblinIcon.png';
 import {
+  getDiagonalDistance,
   GetPlayerDiagonalSpeed,
+  getRandomIntInclusive,
+  IsMonsterInRange,
   ValidDistance,
 } from '../Functions/CalcFunctions';
+import { Weapon } from '../Classes/Weapon';
+import { WeaponList } from '../Classes/WeaponList';
 
 interface gridProps {
   gridSize: number;
@@ -23,6 +28,8 @@ export const BattleGrid = (props: gridProps) => {
   const [monsterCol, setMonsterCol] = useState(4);
   const [monsterRow, setMonsterRow] = useState(4);
   const [playerMoveSpeed, setPlayerMoveSpeed] = useState(30);
+  const [selectedWeapon, setSelectedWeapon] = useState<Weapon>(WeaponList[0]);
+  const [monsterHp, setMonsterHp] = useState(10);
 
   const GetIcon = (row: number, col: number) => {
     if (row === playerRow && col === playerCol) {
@@ -32,14 +39,6 @@ export const BattleGrid = (props: gridProps) => {
       return <CharIcon source={GoblinIcon} />;
     }
   };
-
-  const getDiagonalDistance = (tileDiff: number) => {
-    var evenOddDiff = tileDiff % 2;
-    return evenOddDiff > 0
-      ? ((tileDiff - 1) / 2) * 15 + 5
-      : (tileDiff / 2) * 15;
-  };
-
   const MoveMultiDirectionIfAble = (row: number, column: number) => {
     var colDiff = playerCol > column ? playerCol - column : column - playerCol;
     var rowDiff = playerRow > row ? playerRow - row : row - playerRow;
@@ -101,6 +100,23 @@ export const BattleGrid = (props: gridProps) => {
       </Grid>
     ));
   };
+  const DealDamage = () => {
+    let damageDealt = 0;
+    if (!selectedWeapon) return;
+    for (let a = 1; a <= selectedWeapon.damageDiceAmount; a++) {
+      damageDealt += getRandomIntInclusive(1, selectedWeapon.damageDiceValue);
+    }
+    setMonsterHp(monsterHp - damageDealt);
+  };
+  useEffect(() => {
+    if (monsterHp <= 0) {
+      setPlayerCol(0);
+      setPlayerRow(0);
+      setMonsterCol(4);
+      setMonsterRow(4);
+      setMonsterHp(10);
+    }
+  }, [monsterHp]);
   return (
     <Box alignSelf={'center'}>
       <Grid
@@ -130,6 +146,34 @@ export const BattleGrid = (props: gridProps) => {
           {playerMoveSpeed}
         </Typography>
         <Button onClick={() => setPlayerMoveSpeed(30)}>Refresh</Button>
+      </Stack>{' '}
+      <Stack
+        direction={'row'}
+        alignContent='space-between'
+      >
+        <Select
+          label='Weapon'
+          onChange={(e) => setSelectedWeapon(e.target.value as Weapon)}
+          value={selectedWeapon}
+        >
+          {WeaponList.map((weapon) => (
+            <MenuItem>{weapon.name}</MenuItem>
+          ))}
+        </Select>
+        {IsMonsterInRange(
+          selectedWeapon ?? WeaponList[0],
+          playerRow,
+          playerCol,
+          monsterRow,
+          monsterCol
+        ) && (
+          <Stack
+            direction={'row'}
+            alignContent='space-between'
+          >
+            <Button onClick={DealDamage}>Attack</Button>
+          </Stack>
+        )}
       </Stack>
     </Box>
   );
