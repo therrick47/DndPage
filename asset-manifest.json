@@ -1,0 +1,17 @@
+{
+  "files": {
+    "main.css": "/DndPage/static/css/main.f855e6bc.css",
+    "main.js": "/DndPage/static/js/main.4df46912.js",
+    "static/js/453.54f4c238.chunk.js": "/DndPage/static/js/453.54f4c238.chunk.js",
+    "static/media/GoblinIcon.png": "/DndPage/static/media/GoblinIcon.e42d25c0228c28af4779.png",
+    "static/media/KnightIcon.jpg": "/DndPage/static/media/KnightIcon.be7f3297e93d0f8c9912.jpg",
+    "index.html": "/DndPage/index.html",
+    "main.f855e6bc.css.map": "/DndPage/static/css/main.f855e6bc.css.map",
+    "main.4df46912.js.map": "/DndPage/static/js/main.4df46912.js.map",
+    "453.54f4c238.chunk.js.map": "/DndPage/static/js/453.54f4c238.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.f855e6bc.css",
+    "static/js/main.4df46912.js"
+  ]
+}
