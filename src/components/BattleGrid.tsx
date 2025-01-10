@@ -17,6 +17,8 @@ import {
 } from '../Functions/CalcFunctions';
 import { Weapon } from '../Classes/Weapon';
 import { WeaponList } from '../Classes/WeaponList';
+import WeaponStats from './WeaponStats';
+import NumberDisplay from './NumberDisplay';
 
 interface gridProps {
   gridSize: number;
@@ -28,7 +30,9 @@ export const BattleGrid = (props: gridProps) => {
   const [monsterCol, setMonsterCol] = useState(4);
   const [monsterRow, setMonsterRow] = useState(4);
   const [playerMoveSpeed, setPlayerMoveSpeed] = useState(30);
-  const [selectedWeapon, setSelectedWeapon] = useState<Weapon>(WeaponList[0]);
+  const [selectedWeaponName, setSelectedWeaponName] = useState(
+    WeaponList[0].name
+  );
   const [monsterHp, setMonsterHp] = useState(10);
 
   const GetIcon = (row: number, col: number) => {
@@ -102,6 +106,7 @@ export const BattleGrid = (props: gridProps) => {
   };
   const DealDamage = () => {
     let damageDealt = 0;
+    var selectedWeapon = WeaponList.find((x) => x.name === selectedWeaponName);
     if (!selectedWeapon) return;
     for (let a = 1; a <= selectedWeapon.damageDiceAmount; a++) {
       damageDealt += getRandomIntInclusive(1, selectedWeapon.damageDiceValue);
@@ -115,6 +120,7 @@ export const BattleGrid = (props: gridProps) => {
       setMonsterCol(4);
       setMonsterRow(4);
       setMonsterHp(10);
+      setPlayerMoveSpeed(30);
     }
   }, [monsterHp]);
   return (
@@ -127,53 +133,58 @@ export const BattleGrid = (props: gridProps) => {
       >
         {getBody(props)}
       </Grid>
-      <Stack
-        direction={'row'}
-        alignContent='space-between'
-      >
-        <Typography
-          padding='10px'
-          align='center'
-          fontSize='25px'
+      <Stack>
+        <Stack
+          direction={'row'}
+          alignContent='space-between'
         >
-          Player move speed remaining:
-        </Typography>
-        <Typography
-          padding='10px'
-          align='center'
-          fontSize='25px'
+          <NumberDisplay
+            name='Player move speed remaining:'
+            num={playerMoveSpeed}
+          ></NumberDisplay>
+
+          <Button onClick={() => setPlayerMoveSpeed(30)}>Refresh</Button>
+        </Stack>
+
+        <NumberDisplay
+          name='Monster HP:'
+          num={monsterHp}
+        ></NumberDisplay>
+        <Stack
+          direction={'row'}
+          alignContent='space-between'
+          spacing={'5px'}
         >
-          {playerMoveSpeed}
-        </Typography>
-        <Button onClick={() => setPlayerMoveSpeed(30)}>Refresh</Button>
-      </Stack>{' '}
-      <Stack
-        direction={'row'}
-        alignContent='space-between'
-      >
-        <Select
-          label='Weapon'
-          onChange={(e) => setSelectedWeapon(e.target.value as Weapon)}
-          value={selectedWeapon}
-        >
-          {WeaponList.map((weapon) => (
-            <MenuItem>{weapon.name}</MenuItem>
-          ))}
-        </Select>
-        {IsMonsterInRange(
-          selectedWeapon ?? WeaponList[0],
-          playerRow,
-          playerCol,
-          monsterRow,
-          monsterCol
-        ) && (
-          <Stack
-            direction={'row'}
-            alignContent='space-between'
+          <Select
+            sx={{ width: 'auto' }}
+            label='Weapon'
+            onChange={(e) => setSelectedWeaponName(e.target.value)}
+            value={selectedWeaponName}
+            defaultValue={WeaponList[0].name}
           >
-            <Button onClick={DealDamage}>Attack</Button>
-          </Stack>
-        )}
+            {WeaponList.map((weapon) => (
+              <MenuItem value={weapon.name}>{weapon.name}</MenuItem>
+            ))}
+          </Select>
+          <WeaponStats
+            weapon={WeaponList.find((x) => x.name === selectedWeaponName)}
+          ></WeaponStats>
+          {IsMonsterInRange(
+            WeaponList.find((x) => x.name === selectedWeaponName) ??
+              WeaponList[0],
+            playerRow,
+            playerCol,
+            monsterRow,
+            monsterCol
+          ) && (
+            <Stack
+              direction={'row'}
+              alignContent='space-between'
+            >
+              <Button onClick={DealDamage}>Attack</Button>
+            </Stack>
+          )}
+        </Stack>
       </Stack>
     </Box>
   );
