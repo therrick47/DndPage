@@ -19,6 +19,7 @@ import { Weapon } from '../Classes/Weapon';
 import { WeaponList } from '../Classes/WeaponList';
 import WeaponStats from './WeaponStats';
 import NumberDisplay from './NumberDisplay';
+import { PlayerMoveSpeedLabel } from './PlayerMoveSpeedLabel';
 
 interface gridProps {
   gridSize: number;
@@ -46,7 +47,9 @@ export const BattleGrid = (props: gridProps) => {
   const MoveMultiDirectionIfAble = (row: number, column: number) => {
     var colDiff = playerCol > column ? playerCol - column : column - playerCol;
     var rowDiff = playerRow > row ? playerRow - row : row - playerRow;
+    //if new location is diagonal, we move on 5/10ft per square alterations
     if (rowDiff === colDiff) {
+      //if the diff is movable with the current movespeed, update
       if (rowDiff <= GetPlayerDiagonalSpeed(playerMoveSpeed)) {
         setPlayerCol(column);
         setPlayerRow(row);
@@ -56,23 +59,27 @@ export const BattleGrid = (props: gridProps) => {
       return;
     }
     var distanceMoved = 0;
+    //calculate which diff is smaller to check for diagonal movement
     var smallDiff = rowDiff > colDiff ? colDiff : rowDiff;
-    if (smallDiff > 0 && smallDiff <= GetPlayerDiagonalSpeed(playerMoveSpeed)) {
-      rowDiff -= smallDiff;
-      colDiff -= smallDiff;
-      distanceMoved = getDiagonalDistance(smallDiff);
+    //as long as user can move diagonal, mark distance they can move
+    if (smallDiff >= GetPlayerDiagonalSpeed(playerMoveSpeed)) {
+      return;
     }
-
+    rowDiff -= smallDiff;
+    colDiff -= smallDiff;
+    distanceMoved = getDiagonalDistance(smallDiff);
+    //if the remaining movement has extra squares and is within player's movement
+    //move user to new location
     if (
       (rowDiff > 0 && rowDiff * 5 + distanceMoved <= playerMoveSpeed) ||
       (colDiff > 0 && colDiff * 5 + distanceMoved <= playerMoveSpeed)
     ) {
       setPlayerRow(row);
       setPlayerCol(column);
+      setPlayerMoveSpeed(
+        playerMoveSpeed - distanceMoved - rowDiff * 5 - colDiff * 5
+      );
     }
-    setPlayerMoveSpeed(
-      playerMoveSpeed - distanceMoved - rowDiff * 5 - colDiff * 5
-    );
   };
 
   const getRow = (props: gridProps, column: number) => {
@@ -125,65 +132,59 @@ export const BattleGrid = (props: gridProps) => {
   }, [monsterHp]);
   return (
     <Box alignSelf={'center'}>
-      <Grid
-        height={'100%'}
-        container
-        columns={props.gridSize}
-        spacing={1}
-      >
-        {getBody(props)}
-      </Grid>
       <Stack>
-        <Stack
-          direction={'row'}
-          alignContent='space-between'
+        <Grid
+          height={'100%'}
+          container
+          columns={props.gridSize}
+          spacing={1}
         >
+          {getBody(props)}
+        </Grid>
+        <Stack>
+          <PlayerMoveSpeedLabel
+            movespeed={playerMoveSpeed}
+            reset={() => setPlayerMoveSpeed(30)}
+          />
           <NumberDisplay
-            name='Player move speed remaining:'
-            num={playerMoveSpeed}
+            name='Monster HP:'
+            num={monsterHp}
           ></NumberDisplay>
-
-          <Button onClick={() => setPlayerMoveSpeed(30)}>Refresh</Button>
-        </Stack>
-
-        <NumberDisplay
-          name='Monster HP:'
-          num={monsterHp}
-        ></NumberDisplay>
-        <Stack
-          direction={'row'}
-          alignContent='space-between'
-          spacing={'5px'}
-        >
-          <Select
-            sx={{ width: 'auto' }}
-            label='Weapon'
-            onChange={(e) => setSelectedWeaponName(e.target.value)}
-            value={selectedWeaponName}
-            defaultValue={WeaponList[0].name}
+          <Stack
+            direction={'row'}
+            alignContent='space-between'
+            spacing={'5px'}
           >
-            {WeaponList.map((weapon) => (
-              <MenuItem value={weapon.name}>{weapon.name}</MenuItem>
-            ))}
-          </Select>
-          <WeaponStats
-            weapon={WeaponList.find((x) => x.name === selectedWeaponName)}
-          ></WeaponStats>
-          {IsMonsterInRange(
-            WeaponList.find((x) => x.name === selectedWeaponName) ??
-              WeaponList[0],
-            playerRow,
-            playerCol,
-            monsterRow,
-            monsterCol
-          ) && (
-            <Stack
-              direction={'row'}
-              alignContent='space-between'
+            <Select
+              sx={{ width: 'auto' }}
+              label='Weapon'
+              onChange={(e) => setSelectedWeaponName(e.target.value)}
+              value={selectedWeaponName}
+              defaultValue={WeaponList[0].name}
             >
-              <Button onClick={DealDamage}>Attack</Button>
-            </Stack>
-          )}
+              {WeaponList.map((weapon) => (
+                <MenuItem value={weapon.name}>{weapon.name}</MenuItem>
+              ))}
+            </Select>
+            <WeaponStats
+              weapon={WeaponList.find((x) => x.name === selectedWeaponName)}
+            ></WeaponStats>
+            {IsMonsterInRange(
+              WeaponList.find((x) => x.name === selectedWeaponName) ??
+                WeaponList[0],
+              playerRow,
+              playerCol,
+              monsterRow,
+              monsterCol
+            ) && (
+              <Stack
+                direction={'row'}
+                alignContent='space-between'
+              >
+                <Button onClick={DealDamage}>Attack</Button>
+              </Stack>
+            )}
+          </Stack>
         </Stack>
       </Stack>
     </Box>

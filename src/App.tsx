@@ -1,34 +1,43 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
-import {
-  Box,
-  FormLabel,
-  Input,
-  InputLabel,
-  Stack,
-  Typography,
-} from '@mui/material';
-import { BattleGrid } from './components/BattleGrid';
+import * as React from 'react';
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import ContactsIcon from '@mui/icons-material/Contacts';
+import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
+import { Outlet } from 'react-router';
+import { ReactRouterAppProvider } from '@toolpad/core/react-router';
+import type { Navigation } from '@toolpad/core/AppProvider';
 
-function App() {
+const NAVIGATION: Navigation = [
+  {
+    kind: 'header',
+    title: 'Main items',
+  },
+  {
+    title: 'Battle Arena',
+    icon: <DashboardIcon />,
+  },
+  {
+    segment: 'charcreation',
+    title: 'Character Creation',
+    icon: <ContactsIcon />,
+  },
+  {
+    segment: 'roadmap',
+    title: 'Roadmap',
+    icon: <FormatListBulletedIcon />,
+  },
+];
+
+const BRANDING = {
+  title: 'dndpage',
+};
+
+export default function App() {
   return (
-    <Box
-      alignContent={'center'}
-      height={'100%'}
+    <ReactRouterAppProvider
+      navigation={NAVIGATION}
+      branding={BRANDING}
     >
-      <Typography
-        variant='h2'
-        padding='10px'
-        align='center'
-      >
-        WELCOME TO THE ARENA
-      </Typography>
-      <Stack alignContent={'space-between'}>
-        <BattleGrid gridSize={10} />
-      </Stack>
-    </Box>
+      <Outlet />
+    </ReactRouterAppProvider>
   );
 }
-
-export default App;
