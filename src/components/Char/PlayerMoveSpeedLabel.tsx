@@ -9,11 +9,10 @@ export const PlayerMoveSpeedLabel = (props: MoveSpeedProps) => {
       alignContent='space-between'
     >
       <NumberDisplay
-        name='Player move speed remaining:'
+        name='Move speed:'
         num={props.movespeed}
       ></NumberDisplay>
-
-      <Button onClick={() => props.reset}>Refresh</Button>
+      {props.reset && <Button onClick={() => props.reset}>Refresh</Button>}
     </Stack>
   );
 };

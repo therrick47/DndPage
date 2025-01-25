@@ -1,22 +1,52 @@
 import { Stack, Typography } from '@mui/material';
-
+type Feature = {
+  featureName: string;
+  completed?: boolean;
+};
 export const Roadmap = () => {
-  const ArenaFeatures = [
-    'Add player hp/stats',
-    'Add monster attacks',
-    'add monster movement',
-    'redesign grid',
+  const ArenaFeatures: Array<Feature> = [
+    {
+      featureName: 'Add player hp/stats',
+    },
+    {
+      featureName: 'Add monster attacks',
+      completed: true,
+    },
+    {
+      featureName: 'add monster movement',
+    },
+    {
+      featureName: 'redesign grid',
+    },
   ];
-  const CharCreationFeatures = [
-    'add initial layout',
-    'add attributes',
-    'add skills',
-    'add default human fighter',
-    'add race options',
-    'add class options',
-    'add proficencies',
-    'add save/export',
-    'investigate exporting to char sheet pdf',
+  const CharCreationFeatures: Array<Feature> = [
+    {
+      featureName: 'add initial layout',
+    },
+    {
+      featureName: 'add attributes',
+    },
+    {
+      featureName: 'add skills',
+    },
+    {
+      featureName: 'add default human fighter',
+    },
+    {
+      featureName: 'add race options',
+    },
+    {
+      featureName: 'add class options',
+    },
+    {
+      featureName: 'add proficencies',
+    },
+    {
+      featureName: 'add save/export',
+    },
+    {
+      featureName: 'investigate exporting to char sheet pdf',
+    },
   ];
 
   return (
@@ -24,13 +54,23 @@ export const Roadmap = () => {
       <Stack spacing={'3px'}>
         <Typography variant='h3'>Arena Features</Typography>
         {ArenaFeatures.map((x) => (
-          <Typography>{x}</Typography>
+          <Typography
+            style={{ textDecoration: x.completed ? 'line-through' : 'none' }}
+          >
+            {x.featureName}
+          </Typography>
         ))}
       </Stack>
       <Stack spacing={'3px'}>
         <Typography variant='h3'>Character Creation Features</Typography>
         {CharCreationFeatures.map((x) => (
-          <Typography>{x}</Typography>
+          <Stack direction={'row'}>
+            <Typography
+              style={{ textDecoration: x.completed ? 'line-through' : 'none' }}
+            >
+              {x.featureName}
+            </Typography>
+          </Stack>
         ))}
       </Stack>
     </Stack>

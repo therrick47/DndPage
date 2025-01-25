@@ -1,25 +1,19 @@
-import { styled } from '@mui/material/styles';
 import Grid from '@mui/material/Grid2';
-import Paper from '@mui/material/Paper';
 import Box from '@mui/material/Box';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { GridTextItem } from '../../styles/gridStyles';
 import { CharIcon } from '../Char/CharIcon';
-import { Button, MenuItem, Select, Stack, Typography } from '@mui/material';
-import KnightIcon from '../images/KnightIcon.jpg';
-import GoblinIcon from '../images/GoblinIcon.png';
+import { Button, Stack } from '@mui/material';
+import KnightIcon from '../../images/KnightIcon.jpg';
+import GoblinIcon from '../../images/GoblinIcon.png';
 import {
   getDiagonalDistance,
   GetPlayerDiagonalSpeed,
   getRandomIntInclusive,
   IsMonsterInRange,
-  ValidDistance,
 } from '../../Functions/CalcFunctions';
-import { Weapon } from '../../Classes/Weapon';
 import { WeaponList } from '../../Classes/WeaponList';
-import WeaponStats from '../Char/WeaponStats';
-import NumberDisplay from '../NumberDisplay';
-import { PlayerMoveSpeedLabel } from '../Char/PlayerMoveSpeedLabel';
+import { CharStats } from '../Char/CharStats';
 
 interface gridProps {
   gridSize: number;
@@ -34,7 +28,21 @@ export const BattleGrid = (props: gridProps) => {
   const [selectedWeaponName, setSelectedWeaponName] = useState(
     WeaponList[0].name
   );
+  const [monsterWeaponName, setMonsterWeaponName] = useState(
+    WeaponList[0].name
+  );
   const [monsterHp, setMonsterHp] = useState(10);
+  const [playerHp, setPlayerHp] = useState(20);
+  const selectedWeapon = useMemo(() => {
+    return (
+      WeaponList.find((x) => x.name === selectedWeaponName) ?? WeaponList[0]
+    );
+  }, [selectedWeaponName]);
+  const monsterWeapon = useMemo(() => {
+    return (
+      WeaponList.find((x) => x.name === monsterWeaponName) ?? WeaponList[0]
+    );
+  }, [monsterWeaponName]);
 
   const GetIcon = (row: number, col: number) => {
     if (row === playerRow && col === playerCol) {
@@ -111,10 +119,27 @@ export const BattleGrid = (props: gridProps) => {
       </Grid>
     ));
   };
+  const MonsterDealDamage = () => {
+    if (
+      !IsMonsterInRange(
+        monsterWeapon,
+        monsterRow,
+        monsterCol,
+        playerRow,
+        playerCol
+      )
+    )
+      return;
+
+    let damageDealt = 0;
+    for (let a = 1; a <= selectedWeapon.damageDiceAmount; a++) {
+      damageDealt += getRandomIntInclusive(1, selectedWeapon.damageDiceValue);
+    }
+    setPlayerHp(playerHp - damageDealt);
+  };
   const DealDamage = () => {
     let damageDealt = 0;
-    var selectedWeapon = WeaponList.find((x) => x.name === selectedWeaponName);
-    if (!selectedWeapon) return;
+
     for (let a = 1; a <= selectedWeapon.damageDiceAmount; a++) {
       damageDealt += getRandomIntInclusive(1, selectedWeapon.damageDiceValue);
     }
@@ -129,49 +154,59 @@ export const BattleGrid = (props: gridProps) => {
       setMonsterHp(10);
       setPlayerMoveSpeed(30);
     }
+    MonsterDealDamage();
   }, [monsterHp]);
+  useEffect(() => {
+    setPlayerCol(0);
+    setPlayerRow(0);
+    setMonsterCol(4);
+    setMonsterRow(4);
+    setMonsterHp(10);
+    setPlayerMoveSpeed(30);
+    setPlayerHp(20);
+  }, [playerHp]);
   return (
     <Box alignSelf={'center'}>
-      <Stack>
+      <Stack
+        spacing={'10px'}
+        alignItems={'center'}
+      >
+        <Stack
+          direction={'row'}
+          spacing={'30px'}
+        >
+          <CharStats
+            name='Player'
+            updateWeaponFunction={setSelectedWeaponName}
+            Hp={playerHp}
+            Weapon={selectedWeapon}
+            MoveSpeed={playerMoveSpeed}
+            UpdateMoveSpeedFunction={() => setPlayerMoveSpeed(30)}
+          ></CharStats>
+          <CharStats
+            name='Goblin'
+            updateWeaponFunction={setMonsterWeaponName}
+            Hp={monsterHp}
+            Weapon={monsterWeapon}
+          ></CharStats>
+        </Stack>
         <Grid
           height={'100%'}
           container
           columns={props.gridSize}
           spacing={1}
+          width={'500px'}
         >
           {getBody(props)}
         </Grid>
         <Stack>
-          <PlayerMoveSpeedLabel
-            movespeed={playerMoveSpeed}
-            reset={() => setPlayerMoveSpeed(30)}
-          />
-          <NumberDisplay
-            name='Monster HP:'
-            num={monsterHp}
-          ></NumberDisplay>
           <Stack
             direction={'row'}
             alignContent='space-between'
             spacing={'5px'}
           >
-            <Select
-              sx={{ width: 'auto' }}
-              label='Weapon'
-              onChange={(e) => setSelectedWeaponName(e.target.value)}
-              value={selectedWeaponName}
-              defaultValue={WeaponList[0].name}
-            >
-              {WeaponList.map((weapon) => (
-                <MenuItem value={weapon.name}>{weapon.name}</MenuItem>
-              ))}
-            </Select>
-            <WeaponStats
-              weapon={WeaponList.find((x) => x.name === selectedWeaponName)}
-            ></WeaponStats>
             {IsMonsterInRange(
-              WeaponList.find((x) => x.name === selectedWeaponName) ??
-                WeaponList[0],
+              selectedWeapon,
               playerRow,
               playerCol,
               monsterRow,
