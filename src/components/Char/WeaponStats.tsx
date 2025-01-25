@@ -1,5 +1,5 @@
 import { Stack, Typography } from '@mui/material';
-import { WeaponStatsProps } from './dnd.types';
+import { WeaponStatsProps } from '../dnd.types';
 
 const WeaponStats = (props: WeaponStatsProps) => {
   if (!props.weapon) {

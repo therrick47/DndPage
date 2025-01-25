@@ -1,5 +1,5 @@
 import { Box, Typography, Stack } from '@mui/material';
-import { BattleGrid } from './BattleGrid';
+import { BattleGrid } from './BattleArena/BattleGrid';
 
 export default function MainPage() {
   return (

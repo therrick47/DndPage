@@ -1,6 +1,6 @@
 import { Stack, Button } from '@mui/material';
-import NumberDisplay from './NumberDisplay';
-import { MoveSpeedProps } from './components.types';
+import NumberDisplay from '../NumberDisplay';
+import { MoveSpeedProps } from '../components.types';
 
 export const PlayerMoveSpeedLabel = (props: MoveSpeedProps) => {
   return (

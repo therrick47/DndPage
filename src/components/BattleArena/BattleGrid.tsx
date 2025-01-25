@@ -3,8 +3,8 @@ import Grid from '@mui/material/Grid2';
 import Paper from '@mui/material/Paper';
 import Box from '@mui/material/Box';
 import React, { useEffect, useState } from 'react';
-import { GridTextItem } from '../styles/gridStyles';
-import { CharIcon } from './CharIcon';
+import { GridTextItem } from '../../styles/gridStyles';
+import { CharIcon } from '../Char/CharIcon';
 import { Button, MenuItem, Select, Stack, Typography } from '@mui/material';
 import KnightIcon from '../images/KnightIcon.jpg';
 import GoblinIcon from '../images/GoblinIcon.png';
@@ -14,12 +14,12 @@ import {
   getRandomIntInclusive,
   IsMonsterInRange,
   ValidDistance,
-} from '../Functions/CalcFunctions';
-import { Weapon } from '../Classes/Weapon';
-import { WeaponList } from '../Classes/WeaponList';
-import WeaponStats from './WeaponStats';
-import NumberDisplay from './NumberDisplay';
-import { PlayerMoveSpeedLabel } from './PlayerMoveSpeedLabel';
+} from '../../Functions/CalcFunctions';
+import { Weapon } from '../../Classes/Weapon';
+import { WeaponList } from '../../Classes/WeaponList';
+import WeaponStats from '../Char/WeaponStats';
+import NumberDisplay from '../NumberDisplay';
+import { PlayerMoveSpeedLabel } from '../Char/PlayerMoveSpeedLabel';
 
 interface gridProps {
   gridSize: number;
