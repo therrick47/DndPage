@@ -28,7 +28,7 @@ const NAVIGATION: Navigation = [
 ];
 
 const BRANDING = {
-  title: 'dndpage',
+  title: 'DndPage',
 };
 
 export default function App() {
