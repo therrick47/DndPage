@@ -1,6 +1,7 @@
 {
   "name": "dndpage",
   "version": "0.1.0",
+  "homepage": "https://therrick47.github.io/DndPage",
   "scripts": {
     "dev": "vite --open",
     "build": "vite build",
