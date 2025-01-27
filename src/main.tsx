@@ -7,33 +7,37 @@ import HomePage from './pages';
 import CharCreationPage from './pages/CharCreationPage';
 import { Roadmap } from './components/Roadmap';
 
-const router = createBrowserRouter([
+const router = createBrowserRouter(
+  [
+    {
+      Component: App,
+      children: [
+        {
+          path: '',
+          Component: Layout,
+          children: [
+            {
+              path: '',
+              Component: HomePage,
+            },
+            {
+              path: 'charcreation',
+              Component: CharCreationPage,
+            },
+            {
+              path: 'roadmap',
+              Component: Roadmap,
+            },
+          ],
+        },
+      ],
+    },
+  ],
   {
-    Component: App,
-    children: [
-      {
-        path: '/DndPage',
-        Component: Layout,
-        children: [
-          {
-            path: '',
-            Component: HomePage,
-          },
-          {
-            path: 'charcreation',
-            Component: CharCreationPage,
-          },
-          {
-            path: 'roadmap',
-            Component: Roadmap,
-          },
-        ],
-      },
-    ],
-    path: '/DndPage',
-  },
-]);
-
+    basename: '/DndPage',
+  }
+);
+console.log(router.basename);
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <RouterProvider router={router} />
