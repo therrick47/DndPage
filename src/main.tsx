@@ -34,7 +34,7 @@ const router = createBrowserRouter(
     },
   ],
   {
-    basename: '/DndPage/',
+    basename: '/DndPage',
   }
 );
 console.log(router.basename);
