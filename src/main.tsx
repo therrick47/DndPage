@@ -13,7 +13,7 @@ const router = createBrowserRouter(
       Component: App,
       children: [
         {
-          path: '',
+          path: 'DndPage',
           Component: Layout,
           children: [
             {
