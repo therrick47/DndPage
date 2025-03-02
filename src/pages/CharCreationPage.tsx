@@ -1,6 +1,14 @@
 import * as React from 'react';
-import Typography from '@mui/material/Typography';
+import { Box, TextField, Typography } from '@mui/material';
+import pdfToText from 'react-pdftotext';
+import { PDFDocument } from 'pdf-lib';
+import { CharCreator } from '../components/CharCreation/CharCreator';
 
 export default function CharCreationPage() {
-  return <Typography>Character Creation Placeholder</Typography>;
+  return (
+    <Box>
+      <Typography>Character Creation Placeholder</Typography>
+      <CharCreator />
+    </Box>
+  );
 }

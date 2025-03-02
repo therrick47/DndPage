@@ -12,3 +12,8 @@ export type CharStatsProps = {
   MoveSpeed?: number;
   UpdateMoveSpeedFunction?: Function;
 };
+
+export type kvp = {
+  key: number;
+  value: string;
+};

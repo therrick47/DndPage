@@ -5,7 +5,8 @@ import App from './App';
 import Layout from './layouts/dashboard';
 import HomePage from './pages';
 import CharCreationPage from './pages/CharCreationPage';
-import { Roadmap } from './components/Roadmap';
+import { Roadmap } from './components/Roadmap/Roadmap';
+import { KingdomCreation } from './components/Kingdom/KingdomCreation';
 
 const router = createBrowserRouter(
   [
@@ -23,6 +24,10 @@ const router = createBrowserRouter(
             {
               path: 'charcreation',
               Component: CharCreationPage,
+            },
+            {
+              path: 'kingdom',
+              Component: KingdomCreation,
             },
             {
               path: 'roadmap',

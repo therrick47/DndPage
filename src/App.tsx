@@ -21,6 +21,11 @@ const NAVIGATION: Navigation = [
     icon: <ContactsIcon />,
   },
   {
+    segment: 'kingdom',
+    title: 'Kingdom Creation',
+    icon: <ContactsIcon />,
+  },
+  {
     segment: 'roadmap',
     title: 'Roadmap',
     icon: <FormatListBulletedIcon />,
