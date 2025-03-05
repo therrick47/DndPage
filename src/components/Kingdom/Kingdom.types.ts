@@ -2,7 +2,7 @@ export type Charter = {
   Name: string;
   Description: string;
   AbilityBoosts: Array<KingdomAttribute>;
-  AbilityFlaw: KingdomAttribute;
+  AbilityFlaw: KingdomAttribute | undefined;
 };
 export enum KingdomAttribute {
   Loyalty = 'Loyalty',
@@ -18,4 +18,11 @@ export type Government = {
   AbilityBoosts: Array<KingdomAttribute>;
   Skills: Array<string>;
   KingdomFeat: string;
+};
+export type StatDisplayProps = {
+  attributes: Array<{ name: string; attr: number }>;
+};
+export type DisplayStat = {
+  name: string;
+  attr: number;
 };
