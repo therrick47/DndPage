@@ -26,3 +26,19 @@ export type DisplayStat = {
   name: string;
   attr: number;
 };
+
+export type KingdomAction = {
+  Name: string;
+  Tags: Array<string>;
+  Requirements?: string;
+  critSuccess?: string;
+  success: string;
+  failure: string;
+  critFailure?: string;
+};
+export type KingdomSkill = {
+  Name: string;
+  KeyAbility: KingdomAttribute;
+  UntrainedActions: Array<string>;
+  TrainedActions?: Array<string>;
+};

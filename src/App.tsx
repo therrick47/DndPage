@@ -22,8 +22,18 @@ const NAVIGATION: Navigation = [
   },
   {
     segment: 'kingdom',
-    title: 'Kingdom Creation',
+    title: 'Kingdom',
     icon: <ContactsIcon />,
+    children: [
+      {
+        segment: 'creation',
+        title: 'Creation',
+      },
+      {
+        segment: 'actions',
+        title: 'Actions',
+      },
+    ],
   },
   {
     segment: 'roadmap',

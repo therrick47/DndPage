@@ -7,6 +7,7 @@ import HomePage from './pages';
 import CharCreationPage from './pages/CharCreationPage';
 import { Roadmap } from './components/Roadmap/Roadmap';
 import { KingdomCreation } from './components/Kingdom/KingdomCreation';
+import { KingdomActions } from './components/Kingdom/KingdomActions';
 
 const router = createBrowserRouter(
   [
@@ -27,7 +28,16 @@ const router = createBrowserRouter(
             },
             {
               path: 'kingdom',
-              Component: KingdomCreation,
+              children: [
+                {
+                  path: 'creation',
+                  Component: KingdomCreation,
+                },
+                {
+                  path: 'actions',
+                  Component: KingdomActions,
+                },
+              ],
             },
             {
               path: 'roadmap',
