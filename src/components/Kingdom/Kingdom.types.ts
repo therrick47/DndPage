@@ -42,3 +42,10 @@ export type KingdomSkill = {
   UntrainedActions: Array<string>;
   TrainedActions?: Array<string>;
 };
+export type KingdomLeader = {
+  Name: string;
+  Description: string;
+  KeyAbility: KingdomAttribute;
+  filled?: boolean;
+  VacancyPenalty: string;
+};
