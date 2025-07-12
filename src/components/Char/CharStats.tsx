@@ -7,13 +7,14 @@ import NumberDisplay from '../NumberDisplay';
 import { PlayerMoveSpeedLabel } from './PlayerMoveSpeedLabel';
 
 export const CharStats = (props: CharStatsProps) => {
+  const { MoveSpeed, UpdateMoveSpeedFunction } = props;
   return (
     <Card>
       <Box width={'300px'}>
         <Typography variant='h4'>{props.name}</Typography>
-        {!!props.MoveSpeed && (
+        {UpdateMoveSpeedFunction && (
           <PlayerMoveSpeedLabel
-            movespeed={props.MoveSpeed}
+            movespeed={MoveSpeed ?? 0}
             reset={props.UpdateMoveSpeedFunction}
           />
         )}

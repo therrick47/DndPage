@@ -14,55 +14,72 @@ import {
 } from '../../Functions/CalcFunctions';
 import { WeaponList } from '../../Classes/WeaponList';
 import { CharStats } from '../Char/CharStats';
+import { ArenaInfo } from '../components.types';
 
 interface gridProps {
   gridSize: number;
 }
 
 export const BattleGrid = (props: gridProps) => {
-  const [playerCol, setPlayerCol] = useState(0);
-  const [playerRow, setPlayerRow] = useState(0);
-  const [monsterCol, setMonsterCol] = useState(4);
-  const [monsterRow, setMonsterRow] = useState(4);
-  const [playerMoveSpeed, setPlayerMoveSpeed] = useState(30);
-  const [selectedWeaponName, setSelectedWeaponName] = useState(
-    WeaponList[0].name
-  );
-  const [monsterWeaponName, setMonsterWeaponName] = useState(
-    WeaponList[0].name
-  );
-  const [monsterHp, setMonsterHp] = useState(10);
-  const [playerHp, setPlayerHp] = useState(20);
+  const [playerInfo, setPlayerInfo] = useState<ArenaInfo>({
+    currentHp: 20,
+    currentCol: 0,
+    currentRow: 0,
+    currentMoveSpeed: 30,
+    selectedWeaponName: WeaponList[0].name,
+    selectedWeapon: WeaponList[0],
+  });
+  const [monsterInfo, setMonsterInfo] = useState<ArenaInfo>({
+    currentHp: 30,
+    currentCol: props.gridSize - 1,
+    currentRow: props.gridSize - 1,
+    currentMoveSpeed: 30,
+    selectedWeaponName: WeaponList[0].name,
+    selectedWeapon: WeaponList[0],
+  });
+  const [canAttack, setCanAttack] = useState<boolean>(false);
+
   const selectedWeapon = useMemo(() => {
     return (
-      WeaponList.find((x) => x.name === selectedWeaponName) ?? WeaponList[0]
+      WeaponList.find((x) => x.name === playerInfo.selectedWeaponName) ??
+      WeaponList[0]
     );
-  }, [selectedWeaponName]);
+  }, [playerInfo.selectedWeaponName]);
   const monsterWeapon = useMemo(() => {
     return (
-      WeaponList.find((x) => x.name === monsterWeaponName) ?? WeaponList[0]
+      WeaponList.find((x) => x.name === monsterInfo.selectedWeaponName) ??
+      WeaponList[0]
     );
-  }, [monsterWeaponName]);
+  }, [monsterInfo.selectedWeaponName]);
 
   const GetIcon = (row: number, col: number) => {
-    if (row === playerRow && col === playerCol) {
+    if (row === playerInfo.currentRow && col === playerInfo.currentCol) {
       return <CharIcon source={KnightIcon} />;
     }
-    if (row === monsterRow && col === monsterCol) {
+    if (row === monsterInfo.currentRow && col === monsterInfo.currentCol) {
       return <CharIcon source={GoblinIcon} />;
     }
   };
-  const MoveMultiDirectionIfAble = (row: number, column: number) => {
-    var colDiff = playerCol > column ? playerCol - column : column - playerCol;
-    var rowDiff = playerRow > row ? playerRow - row : row - playerRow;
+  const MoveFunction = (
+    row: number,
+    column: number,
+    info: ArenaInfo,
+    setInfo: Function
+  ) => {
+    var colDiff = Math.abs(info.currentCol - column);
+    var rowDiff = Math.abs(info.currentRow - row);
+
     //if new location is diagonal, we move on 5/10ft per square alterations
     if (rowDiff === colDiff) {
       //if the diff is movable with the current movespeed, update
-      if (rowDiff <= GetPlayerDiagonalSpeed(playerMoveSpeed)) {
-        setPlayerCol(column);
-        setPlayerRow(row);
+      if (rowDiff <= GetPlayerDiagonalSpeed(info.currentMoveSpeed)) {
         var distance = getDiagonalDistance(rowDiff);
-        setPlayerMoveSpeed(playerMoveSpeed - distance);
+        setInfo({
+          ...info,
+          currentCol: column,
+          currentRow: row,
+          currentMoveSpeed: info.currentMoveSpeed - distance,
+        });
       }
       return;
     }
@@ -70,7 +87,7 @@ export const BattleGrid = (props: gridProps) => {
     //calculate which diff is smaller to check for diagonal movement
     var smallDiff = rowDiff > colDiff ? colDiff : rowDiff;
     //as long as user can move diagonal, mark distance they can move
-    if (smallDiff >= GetPlayerDiagonalSpeed(playerMoveSpeed)) {
+    if (smallDiff >= GetPlayerDiagonalSpeed(info.currentMoveSpeed)) {
       return;
     }
     rowDiff -= smallDiff;
@@ -79,22 +96,47 @@ export const BattleGrid = (props: gridProps) => {
     //if the remaining movement has extra squares and is within player's movement
     //move user to new location
     if (
-      (rowDiff > 0 && rowDiff * 5 + distanceMoved <= playerMoveSpeed) ||
-      (colDiff > 0 && colDiff * 5 + distanceMoved <= playerMoveSpeed)
+      (rowDiff > 0 && rowDiff * 5 + distanceMoved <= info.currentMoveSpeed) ||
+      (colDiff > 0 && colDiff * 5 + distanceMoved <= info.currentMoveSpeed)
     ) {
-      setPlayerRow(row);
-      setPlayerCol(column);
-      setPlayerMoveSpeed(
-        playerMoveSpeed - distanceMoved - rowDiff * 5 - colDiff * 5
-      );
+      var movespeed =
+        info.currentMoveSpeed - distanceMoved - rowDiff * 5 - colDiff * 5;
+      setInfo({
+        ...info,
+        currentRow: row,
+        currentCol: column,
+        currentMoveSpeed: movespeed,
+      });
+    }
+  };
+  const MoveMultiDirectionIfAble = (
+    row: number,
+    column: number,
+    info: ArenaInfo,
+    setInfo: Function
+  ) => {
+    MoveFunction(row, column, info, setInfo);
+    var colDiff = Math.abs(info.currentCol - column);
+    var rowDiff = Math.abs(info.currentRow - row);
+    if (
+      rowDiff <= playerInfo.selectedWeapon.range / 5 &&
+      colDiff <= playerInfo.selectedWeapon.range / 5
+    ) {
+      setCanAttack(true);
     }
   };
 
   const getRow = (props: gridProps, column: number) => {
     const calculateMove = (column: number, row: number) => {
-      if (column === monsterCol && row === monsterRow) return;
+      if (column === monsterInfo.currentCol && row === monsterInfo.currentRow)
+        return;
 
-      MoveMultiDirectionIfAble(row, column);
+      MoveMultiDirectionIfAble(row, column, playerInfo, setPlayerInfo);
+
+      setMonsterInfo({
+        ...monsterInfo,
+        currentMoveSpeed: 30,
+      });
     };
 
     return Array.from(Array(props.gridSize)).map((_, row) => (
@@ -123,10 +165,10 @@ export const BattleGrid = (props: gridProps) => {
     if (
       !IsMonsterInRange(
         monsterWeapon,
-        monsterRow,
-        monsterCol,
-        playerRow,
-        playerCol
+        monsterInfo.currentRow,
+        monsterInfo.currentCol,
+        playerInfo.currentRow,
+        playerInfo.currentCol
       )
     )
       return;
@@ -135,7 +177,10 @@ export const BattleGrid = (props: gridProps) => {
     for (let a = 1; a <= selectedWeapon.damageDiceAmount; a++) {
       damageDealt += getRandomIntInclusive(1, selectedWeapon.damageDiceValue);
     }
-    setPlayerHp(playerHp - damageDealt);
+    setPlayerInfo({
+      ...playerInfo,
+      currentHp: playerInfo.currentHp - damageDealt,
+    });
   };
   const DealDamage = () => {
     let damageDealt = 0;
@@ -143,28 +188,90 @@ export const BattleGrid = (props: gridProps) => {
     for (let a = 1; a <= selectedWeapon.damageDiceAmount; a++) {
       damageDealt += getRandomIntInclusive(1, selectedWeapon.damageDiceValue);
     }
-    setMonsterHp(monsterHp - damageDealt);
+    setMonsterInfo({
+      ...monsterInfo,
+      currentHp: monsterInfo.currentHp - damageDealt,
+    });
+    setCanAttack(false);
   };
   useEffect(() => {
-    if (monsterHp <= 0) {
-      setPlayerCol(0);
-      setPlayerRow(0);
-      setMonsterCol(4);
-      setMonsterRow(4);
-      setMonsterHp(10);
-      setPlayerMoveSpeed(30);
+    if (monsterInfo.currentHp <= 0) {
+      setMonsterInfo({
+        ...monsterInfo,
+        currentHp: 20,
+        currentCol: props.gridSize - 1,
+        currentRow: props.gridSize - 1,
+      });
+      setPlayerInfo({
+        ...playerInfo,
+        currentCol: 0,
+        currentRow: 0,
+        currentMoveSpeed: 30,
+      });
     }
     MonsterDealDamage();
-  }, [monsterHp]);
+  }, [monsterInfo.currentHp]);
   useEffect(() => {
-    setPlayerCol(0);
-    setPlayerRow(0);
-    setMonsterCol(4);
-    setMonsterRow(4);
-    setMonsterHp(10);
-    setPlayerMoveSpeed(30);
-    setPlayerHp(20);
-  }, [playerHp]);
+    if (playerInfo.currentHp <= 0) {
+      setPlayerInfo({
+        ...playerInfo,
+        currentHp: 20,
+        currentCol: 0,
+        currentRow: 0,
+        currentMoveSpeed: 30,
+      });
+      setMonsterInfo({
+        ...monsterInfo,
+        currentHp: 20,
+        currentCol: props.gridSize - 1,
+        currentRow: props.gridSize - 1,
+      });
+    }
+  }, [playerInfo.currentHp]);
+
+  const PlayerEndTurn = () => {
+    setPlayerInfo({
+      ...playerInfo,
+      currentMoveSpeed: 30,
+    });
+    var rowDist = Math.abs(playerInfo.currentRow - monsterInfo.currentRow);
+    var colDist = Math.abs(playerInfo.currentCol - monsterInfo.currentCol);
+    if (rowDist <= 1 && colDist <= 1) {
+      MonsterDealDamage();
+      setCanAttack(
+        IsMonsterInRange(
+          selectedWeapon,
+          playerInfo.currentRow,
+          playerInfo.currentCol,
+          monsterInfo.currentRow,
+          monsterInfo.currentCol
+        )
+      );
+      return;
+    }
+    rowDist = rowDist > 3 ? 3 : rowDist;
+    colDist = colDist > 3 ? 3 : colDist;
+    var row =
+      playerInfo.currentRow < monsterInfo.currentRow ? -rowDist : rowDist;
+    var column =
+      playerInfo.currentCol < monsterInfo.currentCol ? -colDist : colDist;
+    //move monster towards player
+    MoveMultiDirectionIfAble(
+      monsterInfo.currentRow + row,
+      monsterInfo.currentCol + column,
+      monsterInfo,
+      setMonsterInfo
+    );
+    setCanAttack(
+      IsMonsterInRange(
+        selectedWeapon,
+        playerInfo.currentRow,
+        playerInfo.currentCol,
+        monsterInfo.currentRow,
+        monsterInfo.currentCol
+      )
+    );
+  };
   return (
     <Box alignSelf={'center'}>
       <Stack
@@ -177,16 +284,32 @@ export const BattleGrid = (props: gridProps) => {
         >
           <CharStats
             name='Player'
-            updateWeaponFunction={setSelectedWeaponName}
-            Hp={playerHp}
+            updateWeaponFunction={(weaponName: string) =>
+              setPlayerInfo({
+                ...playerInfo,
+                selectedWeaponName: weaponName,
+                selectedWeapon:
+                  WeaponList.find((x) => x.name === weaponName) ??
+                  WeaponList[0],
+              })
+            }
+            Hp={playerInfo.currentHp}
             Weapon={selectedWeapon}
-            MoveSpeed={playerMoveSpeed}
-            UpdateMoveSpeedFunction={() => setPlayerMoveSpeed(30)}
+            MoveSpeed={playerInfo.currentMoveSpeed}
+            UpdateMoveSpeedFunction={PlayerEndTurn}
           ></CharStats>
           <CharStats
             name='Goblin'
-            updateWeaponFunction={setMonsterWeaponName}
-            Hp={monsterHp}
+            updateWeaponFunction={(weaponName: string) =>
+              setMonsterInfo({
+                ...monsterInfo,
+                selectedWeaponName: weaponName,
+                selectedWeapon:
+                  WeaponList.find((x) => x.name === weaponName) ??
+                  WeaponList[0],
+              })
+            }
+            Hp={monsterInfo.currentHp}
             Weapon={monsterWeapon}
           ></CharStats>
         </Stack>
@@ -207,18 +330,19 @@ export const BattleGrid = (props: gridProps) => {
           >
             {IsMonsterInRange(
               selectedWeapon,
-              playerRow,
-              playerCol,
-              monsterRow,
-              monsterCol
-            ) && (
-              <Stack
-                direction={'row'}
-                alignContent='space-between'
-              >
-                <Button onClick={DealDamage}>Attack</Button>
-              </Stack>
-            )}
+              playerInfo.currentRow,
+              playerInfo.currentCol,
+              monsterInfo.currentRow,
+              monsterInfo.currentCol
+            ) &&
+              canAttack && (
+                <Stack
+                  direction={'row'}
+                  alignContent='space-between'
+                >
+                  <Button onClick={DealDamage}>Attack</Button>
+                </Stack>
+              )}
           </Stack>
         </Stack>
       </Stack>

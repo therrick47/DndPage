@@ -17,3 +17,11 @@ export type kvp = {
   key: number;
   value: string;
 };
+export type ArenaInfo = {
+  currentHp: number;
+  currentCol: number;
+  currentRow: number;
+  currentMoveSpeed: number;
+  selectedWeaponName: string;
+  selectedWeapon: Weapon;
+};

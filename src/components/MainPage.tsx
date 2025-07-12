@@ -1,5 +1,6 @@
 import { Box, Typography, Stack } from '@mui/material';
 import { BattleGrid } from './BattleArena/BattleGrid';
+import { BattleWrapper } from './BattleArena/BattleWrapper';
 
 export default function MainPage() {
   return (
@@ -15,7 +16,7 @@ export default function MainPage() {
         WELCOME TO THE ARENA
       </Typography>
       <Stack alignContent={'space-between'}>
-        <BattleGrid gridSize={10} />
+        <BattleWrapper />
       </Stack>
     </Box>
   );

@@ -3,6 +3,11 @@ import NumberDisplay from '../NumberDisplay';
 import { MoveSpeedProps } from '../components.types';
 
 export const PlayerMoveSpeedLabel = (props: MoveSpeedProps) => {
+  const EndTurn = () => {
+    if (props.reset) {
+      props.reset();
+    }
+  };
   return (
     <Stack
       direction={'row'}
@@ -12,7 +17,7 @@ export const PlayerMoveSpeedLabel = (props: MoveSpeedProps) => {
         name='Move speed:'
         num={props.movespeed}
       ></NumberDisplay>
-      {props.reset && <Button onClick={() => props.reset}>Refresh</Button>}
+      {props.reset && <Button onClick={EndTurn}>End Turn</Button>}
     </Stack>
   );
 };
